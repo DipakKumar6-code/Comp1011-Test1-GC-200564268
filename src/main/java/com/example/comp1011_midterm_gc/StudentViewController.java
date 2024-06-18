@@ -1,8 +1,15 @@
+//
+//
 //package com.example.comp1011_midterm_gc;
 //
 //import javafx.fxml.FXML;
 //import javafx.scene.control.*;
 //
+//import java.sql.SQLException;
+//import java.util.List;
+//import java.util.Set;
+//import java.util.TreeSet;
+//import java.util.stream.Collectors;
 //
 //public class StudentViewController {
 //
@@ -46,17 +53,35 @@
 //    private ComboBox<String> areaCodeComboBox;
 //
 //    @FXML
-//    private void applyFilter()  {
+//    private void applyFilter() {
+//
 //    }
 //
 //    @FXML
 //    void initialize() {
 //        areaCodeComboBox.getItems().add("All");
+//
+//        try {
+//            List<Student> students = Database.getStudents();
+//
+//            // Extract area codes and add them to the ComboBox
+//            Set<String> areaCodes = students.stream()
+//                    .map(student -> student.getTelephone().substring(0, 3)) // Get the area code
+//                    .collect(Collectors.toCollection(TreeSet::new)); // Collect into a TreeSet to sort and remove duplicates
+//
+//            areaCodeComboBox.getItems().addAll(areaCodes);
+//
+//            tableView.getItems().addAll(students);
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
 //    }
 //}
 
 package com.example.comp1011_midterm_gc;
 
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -109,7 +134,6 @@ public class StudentViewController {
 
     @FXML
     private void applyFilter() {
-
     }
 
     @FXML
@@ -126,10 +150,22 @@ public class StudentViewController {
 
             areaCodeComboBox.getItems().addAll(areaCodes);
 
+            // Populate the TableView
             tableView.getItems().addAll(students);
+
+            // Update the number of students label
+            updateStudentsLabel();
+
+            // Add a listener to update the label whenever the items change
+            tableView.getItems().addListener((ListChangeListener<Student>) change -> updateStudentsLabel());
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateStudentsLabel() {
+        int numOfStudents = tableView.getItems().size();
+        numOfStudentsLabel.setText("Number of Students: " + numOfStudents);
     }
 }
